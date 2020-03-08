@@ -376,3 +376,5 @@
 
 ## 总结
 经过上面的流程，我们算是完成了webpack的基础配置，我们也可以从中看到webpack帮我们做了哪些事，大家也可以尝试自己配置webpack，其实对于vue-cli或者react的脚手架，他们也是对webpack进行了配置，比如加入vue-loader,并没有太复杂的东西，webpack也在变得越来越容易上手，只要自己配一遍，就能理解大多数东西了
+
+#### 最后：[文章源码](https://gitee.com/luoyestr/case_source_warehouse/tree/master/webpack-config-node)
