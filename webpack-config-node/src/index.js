@@ -1,3 +1,5 @@
+import './index.scss';
+
 //index.js
 class Animal {
     constructor(name) {
@@ -9,3 +11,4 @@ class Animal {
 }
 
 const dog = new Animal('dog');
+console.log(dog.getName());
