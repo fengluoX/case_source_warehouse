@@ -46,7 +46,7 @@
     }
 ```
 
-4. 创建.babbelrc文件
+4. 创建.babelrc文件
 
 ```
     {
@@ -246,7 +246,7 @@
                 rules: [
                     //...
                     {
-                        test: /\.(sa|sc|c)ss$/,,
+                        test: /\.(sa|sc|c)ss$/,
                         use: [
                             'style-loader',
                             'css-loader',
@@ -357,7 +357,7 @@
             },
         }
     ```
-## 每次打包情况dist文件夹
+## 每次打包清除dist文件夹
 
 + 使用插件clean-webpack-pplugin
     1. 安装：`npm install clean-webpack-plugin -D`
