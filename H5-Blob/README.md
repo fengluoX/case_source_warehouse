@@ -1,4 +1,4 @@
-# 从js接收二进制流图片数据展现看Blob对象
+# js接收二进制流图片数据并展示
 
 ## 背景
 
@@ -113,3 +113,31 @@
             ```
 
 ## PC端
+
++ PC端的方式就比较多了，笔者探索出来的有三种，分别是base64编码，使用[URL.createObjectURL](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL),或者使用[FileReader对象](https://developer.mozilla.org/zh-CN/docs/Web/API/FileReader)，base64编码是通用的前面已经介绍过了，下面主要介绍剩余两种方法
+
+  + 前提：这两种方式所接受的对应都为Blob对象，获取Blob你可以在请求时设置`xhr.responseType==='blob'`，也可以将arrayBuffer对象实例为一个Blob对象，当然，如果你使用fetch,可以使用下面这种方式：
+  
+  ```js
+    fetch(myRequest).then(function(response) {
+        return response.blob();
+    })
+  ```
+
+  1. URL.createObjectURL
+  这个的实现思路主要是通过URL.createObjectURL创建一个指向Blob对象的url引用，从而达到展示图片的目的，代码很简单，就是这样`const domString = URL.createObjectURL(blob)`，当然，在用完后记得使用`URL.revokeObjectURL(domString)`解除引用，防止造成内存泄漏
+
+  2. 使用FileReader对象
+  FileReader对象可以让我们异步读取用户计算机的文件，这里主要使用它的`readAsDataURL`方法，具体实现如下：
+  
+  ```ts
+    let reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => {
+        resolve(reader.result as string);
+    }
+  ```
+
+  当然，我们实际看img的src属性时就会发现，`readAsDataURL`其实也是帮我们转成了base64，不过它比较只能，自动帮我们拼接了`data:image/jpg;base64,`这个前缀，当然，也有可能并一定是`image/jpg`，要视文件的格式而定
+
+## 最后，这个也算是踩了不少坑吧，也是相当有收获的，[源码地址](https://gitee.com/luoyestr/case_source_warehouse/tree/master/H5-Blob)

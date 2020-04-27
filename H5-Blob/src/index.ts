@@ -11,7 +11,7 @@ class BinaryProcessing {
                     resolve(this.http(xhr.response))
                 }
             }
-            xhr.responseType = 'arraybuffer';
+            xhr.responseType = 'blob';
             xhr.send();
         })
     }
@@ -27,16 +27,24 @@ class BinaryProcessing {
     }
 
     http(response: any) {
+        const blob = new Blob([response])
+        return this.readAsDataURL(blob);
+    }
+
+    readAsDataURL(blob:Blob){
         return new Promise((resolve, reject) => {
-            console.log(this.bufferToBase64(response))
             let reader = new FileReader();
-            reader.readAsDataURL(response);
+            reader.readAsDataURL(blob);
             reader.onload = () => {
                 resolve(reader.result as string);
             }
         })
-
     }
+
+    createObjectURL(blob:Blob){
+        return URL.createObjectURL(blob)
+    }
+
 }
 
 (async function () {
@@ -46,8 +54,4 @@ class BinaryProcessing {
     img.src = url;
     document.body.appendChild(img);
 })()
-
-
-
-
 
