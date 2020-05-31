@@ -14,8 +14,13 @@ module.exports = {
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
             {
                 test: /\.jsx?$/,
-                use: ['babel-loader'],
-                exclude: /node_modules/
+                use: ['cache-loader', {
+                    loader: 'babel-loader',
+                    options: {
+                        cacheDirectory: true
+                    }
+                }],
+                include: [path.resolve(__dirname, '../src')]
             },
             {
                 test: /\.(sa|sc)ss$/,
