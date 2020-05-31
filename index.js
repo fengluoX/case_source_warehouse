@@ -9,27 +9,25 @@ function coustomFunction(data) {
     return new Promise((resolve, reject) => {
         let count = 0, obj = {};
         const runtime = (index, data) => {
-            console.log(index);
-            obj[index] = data;
             count--;
+            index !== -1 && (obj[index] = data);
             if (count === 0) {
                 resolve(obj);
             }
         }
         data.forEach((ele, index) => {
             count++;
-            console.log(ele);
             middle(ele).then(res => {
                 runtime(index, res);
-            }).catch(err=>{
-                console.log(err,'==')
+            }).catch(err => {
+                runtime(-1)
             })
         })
 
     })
 }
 
-async function middle(ele){
+async function middle(ele) {
     const res = await PromiseFunction(ele);
     return Promise.resolve(res);
 }
@@ -48,5 +46,4 @@ function PromiseFunction(i) {
 
 (async function () {
     const res = await coustomFunction(data);
-    console.log(res);
 })()
