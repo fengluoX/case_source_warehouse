@@ -67,5 +67,60 @@
 
 3. 当然，如果你只是想给`babel-loader`配置`cache`的话，也可以不用`cache-loader`，给`babel-loader`增加选项`cacheDirectory`,当存在设置时，将会尝试读取缓存，以避免可能产生的、高性能的`babel`重新编译过程，如果设置空值或`true`，将会使用默认缓存目录`node_modules/.cache/babel-loader`
 
-4. happypack 让webpack拥有多进程构建
-    
+## happypack 让webpack拥有多进程构建
+
++ webpack在构建时，是文件读写和计算密集型的操作，特别当文件数量变多时，webpack构建慢的问题就会凸显，但是文件读写和计算是无法避免的，而happypack可以让webpack同一时刻处理多个任务，发挥多核CPU的威力，提升构建速度
+
+1. 安装`npm install happypack -D`
+
+2. 使用：
+
+    ```ts
+        const Happypack = require('happypack');
+        module.exports = {
+            //...
+            module:{
+                rules:[
+                    //...
+                    {
+                        test: /\.(png|jpg|gif|jpeg|webp|svg|eot|ttf|woff|woff2)$/,
+                        use: 'Happypack/loader?id=url'
+                    }
+                ]
+            },
+            plugins:[
+                new Happypack({
+                    id:'url', // 和rule中的id=url相对应
+                    use:[ // 原use中的loader在这里配置
+                        {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 20240,
+                            esModule: false,
+                            outputPath: 'assets'
+                        }
+                    }
+                    ]
+                })
+            ]
+        }
+    ```
+
+3. 注意点：
+
+    + happypack默认开启`CPU核数-1个进程`，我们可以通过传递threads给`Happypack`,这里附上它的[git地址](https://github.com/amireh/happypack#readme)
+
+    + 利用happypack处理css时，如果你使用`postcss-loader`，必须要在项目中创建`postcss.config.js`，否则会抛出错误`Error: No PostCSS Config found`
+
+        ```ts
+            //postcss.config.js
+            module.exports={
+                plugins:{
+                    require('autoprefixer')()
+                }
+            }
+        ```
+
+    + 如果项目不是很复杂，不需要配置happypack，因为进程的分配和管理也是需要时间的
+
+## thread-loader

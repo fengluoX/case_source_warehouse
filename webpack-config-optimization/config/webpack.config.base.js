@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const Happypack = require('happypack');
 const path = require('path');
 
 module.exports = {
@@ -24,40 +25,12 @@ module.exports = {
             },
             {
                 test: /\.(sa|sc)ss$/,
-                use: [
-                    'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            plugins: function () {
-                                return [
-                                    require('autoprefixer')({
-                                        overrideBrowserslist: [
-                                            ">0.25%",
-                                            "not dead"
-                                        ]
-                                    })
-                                ]
-                            }
-                        }
-                    },
-                    'sass-loader'
-                ],
+                use: 'Happypack/loader?id=css',
                 exclude: /node_modules/
             },
             {
                 test: /\.(png|jpg|gif|jpeg|webp|svg|eot|ttf|woff|woff2)$/,
-                use: [
-                    {
-                        loader: 'url-loader',
-                        options: {
-                            limit: 20240,
-                            esModule: false,
-                            outputPath: 'assets'
-                        }
-                    }
-                ]
+                use: 'Happypack/loader?id=url'
             }
         ]
     },
@@ -70,6 +43,42 @@ module.exports = {
                 collapseWhitespace: false
             },
             hash: true
+        }),
+        new Happypack({
+            id: 'url',
+            use: [
+                {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 20240,
+                        esModule: false,
+                        outputPath: 'assets'
+                    }
+                }
+            ]
+        }),
+        new Happypack({
+            id: 'css',
+            use: [
+                'style-loader',
+                'css-loader',
+                {
+                    loader: 'postcss-loader',
+                    options: {
+                        plugins: function () {
+                            return [
+                                require('autoprefixer')({
+                                    overrideBrowserslist: [
+                                        ">0.25%",
+                                        "not dead"
+                                    ]
+                                })
+                            ]
+                        }
+                    }
+                },
+                'sass-loader'
+            ]
         })
     ],
     resolve: {
