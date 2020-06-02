@@ -124,3 +124,190 @@
     + 如果项目不是很复杂，不需要配置happypack，因为进程的分配和管理也是需要时间的
 
 ## thread-loader
+
+除了使用`Happypack`外，我们还可以是使用`thread-loader`，把`thread-loader`放置在其他`loader`之前，那么放置在这个`loader`之后的`loader`就会在一个单独的`worker`池中运行。
+
++ 限制：
+
+    1. 这些`loader`不能产生新的文件.
+
+    2. 这些`loader`不能使用定制的`loader`API
+
+    3. 这些`loader`无法获取webpack的选项设置
+
+1. 安装`npm install thread-loader -D`
+
+2. 修改配置
+
+    ```ts
+        module.exports = {
+            module: {
+                //我的项目中,babel-loader耗时比较长，所以我给它配置 thread-loader
+                rules: [
+                    {
+                        test: /\.jsx?$/,
+                        use: ['thread-loader', 'cache-loader', 'babel-loader']
+                    }
+                ]
+            }
+        }
+    ```
+
+## 开启多进程压缩
+
++ 多进程plugin这里有两个推荐
+
+    1. [`webpack-parallel-uglify-plugin`](https://github.com/gdborton/webpack-parallel-uglify-plugin#readme)
+
+    2. [`uglifyjs-webpack-plugin`](https://github.com/webpack-contrib/uglifyjs-webpack-plugin)
+
++ 当然，`webpack`默认使用`TerserWebpackPlugin`，默认就已经开启了多进程和缓存，构建时，你可以看到`terser`的缓存文件`node_modules/.cache/terser-webpack-plugin`
+
+## HardSourceWebpackPlugin
+
++ `HardSourceWebpackPlugin`为模块提供中间缓存，缓存默认的存放路径为:`node_modules/.cache/hard-source`
+
++ 配置`hard-source-webpack-plugin`，首次构建时间没有太大变化，但第二次构建将会极大节约时间
+
+1. 安装：`npm install hard-source-webpack-plugin -D`
+
+2. 配置：
+
+    ```ts
+        // webpack.config.base.js
+        const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+        module.exports={
+            //...
+            plugins:[
+                new HardSourcWebpackPlugin()
+            ]
+        }
+    ```
+
+3. 如果你遇到了如热更新失效，或部分配置不生效，可以查阅[官网](https://www.npmjs.com/package/hard-source-webpack-plugin)
+
+## noParse
+
++ 如果你引入的一些第三方模块没有AMD/CommonJS规范版本，可以使用noParse来标识这个模块，这样webpack会引入这些包，但不会对其转化和解析，从而提升webpack的构建性能，例如`jquery`、`lodash`
+
++ 使用
+
+    ```ts
+        // webpack.config.js
+        module.exports={
+            //...
+            module:{
+                noParse:/jquery|lodash/
+            }
+        }
+    ```
+
+## resolve
+
++ resolve可以配置webpack如何寻找模块对应的文件，如果我们确定模块都从根目录下的node_modules中查找，可以按如下配置
+
+    ```ts
+        // webpack.config.js
+        const path = require('path');
+        module.exports={
+            //...
+            resolve:{
+                modules:[path.resolve(__dirname,'node_modules')]
+            }
+        }
+    ```
+
++ 注意，如果你进行了该配置，那么webpack将不再会自动查找，如果你依赖中也存在node_modules，就会出现文件存在，但是找不到的问题
+
++ resolve还有`extensions`配置，默认为`['.js','.json']`，你可以对它进行配置，但记得要将频率最高的放到第一位，并控制列表的长度，以减少尝试次数
+
+## IgnorePlugin
+
++ `webpack`内置插件，用于忽略第三方包的指定目录
+
++ 示例：忽略moment的本地化内容
+
+    ```ts
+        //webpack.config.js
+        module.exports={
+            plugins:[
+                new webpack.IgnorePlugin(/^\.\/locale$/,'moment$')
+            ]
+        }
+    ```
+
+    这样，我们在使用时，可以手动引入语言包即可，如引入中文语言包：
+
+    ```ts
+        import moment from 'moment';
+        import 'moment/locale/zh-cn'
+    ```
+
+## externals
+
++ 我们可以将一些JS文件存储在CDN上，以减少Webpack打包出来的js体积,在index.html中通过`<script>`引入,如:
+
+    ```html
+        <!DOCTYPE html>
+        <html>
+            <!-- ... -->
+            <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+        </html>
+    ```
+
+我们希望在使用时，仍然可以通过`import`的方式去引用，如`import $ from 'jquery'`，并且希望webpack不对其打包，这是可以配置`externals`
+
+```ts
+    //webpack.config.js
+    module.exports={
+        //...
+        externals:{
+            // jquery通过script引入后，全局中即有了JQuery变量
+            'jquery':'JQuery'
+        }
+    }
+```
+
+## DllPlugin
+
++ 有些时候，如果所有的JS文件都打成一个JS文件，会导致最终生成的JS文件很大，这个时候，我们就要考虑拆分 bundles。
+DllPlugin 和 DLLReferencePlugin 可以实现拆分 bundles，并且可以大大提升构建速度，DllPlugin 和 DLLReferencePlugin 都是 webpack 的内置模块。
+我们使用 DllPlugin 将不会频繁更新的库进行编译，当这些依赖的版本没有变化时，就不需要重新编译。我们新建一个 webpack 的配置文件，来专门用于编译动态链接库，例如名为: webpack.config.dll.js，这里我们将 react 和 react-dom 单独打包成一个动态链接库
+
+    ```ts
+        //webpack.config.dll.js
+        const webpack = require('webpack');
+        const path = require('path');
+
+        module.exports = {
+            entry: {
+                react: ['react', 'react-dom']
+            },
+            mode: 'production',
+            output: {
+                filename: '[name].dll.[hash:6].js',
+                path: path.resolve(__dirname, 'dist', 'dll'),
+                library: '[name]_dll' //暴露给外部使用
+                //libraryTarget 指定如何暴露内容，缺省时就是 var
+            },
+            plugins: [
+                new webpack.DllPlugin({
+                    //name和library一致
+                    name: '[name]_dll', 
+                    path: path.resolve(__dirname, 'dist', 'dll', 'manifest.json') //manifest.json的生成路径
+                })
+            ]
+        }
+    ```
+
+在 package.json 的 scripts 中增加:
+
+```ts
+{
+    "scripts": {
+        "dev": "NODE_ENV=development webpack-dev-server",
+        "build": "NODE_ENV=production webpack",
+        "build:dll": "webpack --config webpack.config.dll.js"
+    },
+}  
+```

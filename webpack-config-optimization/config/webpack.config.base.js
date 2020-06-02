@@ -1,5 +1,6 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const Happypack = require('happypack');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -79,9 +80,13 @@ module.exports = {
                 },
                 'sass-loader'
             ]
-        })
+        }),
+        new HardSourceWebpackPlugin(),
     ],
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".json"]
     },
+    externals:{
+        'jquery':'JQuery'
+    }
 }
