@@ -311,3 +311,101 @@ DllPlugin 和 DLLReferencePlugin 可以实现拆分 bundles，并且可以大大
     },
 }  
 ```
+
+## 抽离公共代码
+
++ 对于多页应用来说，有时候多个引入一些公告模块，我们可以把这些公共模块抽离出来，单独打包,公告代码只需要下载一次就缓存起来，避免重复下载，配置如下：
+
+    ```ts
+        // webpack.config.js
+        module.exports = {
+            optimization:{
+                splitChunks:{ // 分割代码块
+                    cacheGroups:{
+                        vendor:{
+                            priority: 1, //设置优先级，首先抽离第三方模块
+                            name: 'vendor',
+                            test: /node_modules/,
+                            chunks: 'initial',
+                            minSize: 0,
+                            minChunks: 1 //最少引入了1次
+                        },
+                        //缓存组
+                        common: {
+                            //公共模块
+                            chunks: 'initial',
+                            name: 'common',
+                            minSize: 100, //大小超过100个字节
+                            minChunks: 3 //最少引入了3次
+                        }
+                    }
+                }
+            }
+        }
+    ```
+
++ 对于单页应用来说，同样可以使用这个配置，比如打包出来的bundle.js体积过大，我们可以将一些依赖包打包成动态链接库，然后将第三方依赖拆出来。当然，我们也可以继续提取业务代码中的公共模块
+
++ `runtimeChunk` 的作用是将包含 `chunk` 映射关系的列表从 `main.js` 中抽离出来，在配置了 `splitChunk` 时，记得配置 `runtimeChunk`.
+
+    ```ts
+        module.exports = {
+            //...
+            optimization: {
+                runtimeChunk: {
+                    name: 'manifest'
+                }
+            }
+        }
+    ```
+
+这样，最终构建出来的文件中会生成一个manifest.js
+
+### 借助webpack-bundle-analyzer进行进一步优化
+
++ `webpack-bundle-analyzer`是一个打包分析插件，我们可以使用它分析我们项目代码的组成
+
+1. 安装：`npm install webpack-bundle-analyzer -D`
+
+2. 配置：
+
+    ```ts
+        //webpack.config.prod.js
+        const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+        const merge = require('webpack-merge');
+        const baseWebpackConfig = require('./webpack.config.base');
+        module.exports = merge(baseWebpackConfig, {
+            //....
+            plugins: [
+                //...
+                new BundleAnalyzerPlugin(),
+            ]
+        })
+    ```
+
+## webpack自身优化
+
+1. tree-shaking
+
+    我们使用ES6的import语法，在生产环境下，没有被使用到的代码会自动别移除
+
+2. scope hosting 作用域提升
+
+    变量提升，可以减少一些变量声明，生成环境默认开启
+
+3. babel配置的优化
+
+    在不配置`@babel/plugin-transform-runtime` 时，babel 会使用很小的辅助函数来实现类似 _createClass 等公共方法。默认情况下，它将被注入(inject)到需要它的每个文件中。但是这样的结果就是导致构建出来的JS体积变大。
+    我们也并不需要在每个 js 中注入辅助函数，因此我们可以使用 `@babel/plugin-transform-runtime`，`@babel/plugin-transform-runtime` 是一个可以重复使用 Babel 注入的帮助程序，以节省代码大小的插件。
+    因此我们可以在 .babelrc 中增加 `@babel/plugin-transform-runtime`的配置。
+
+    ```ts
+        {
+            "presets": [],
+            "plugins": [
+                [
+                    "@babel/plugin-transform-runtime"
+                ]
+            ]
+        }
+    ```
