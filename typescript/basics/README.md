@@ -44,6 +44,91 @@
 
     `type`是类型的声明关键字，接下来会说到，使用上面代码声明的类型来约束的话，那被约束的变量只能被赋值为`'Literal'`
 
+    + 数组
+
+        声明数组类型有以下两种方式：
+
+        ```ts
+            let list:number[] = [1,2,3];
+            let list:Array<number> = [1,2,3];
+        ```
+
+    + 元组
+
+        元组并不是一个明确的类型，而算是一种范式
+
+        ```ts
+            let x:[string,number];
+
+            x = ['hello',10] // OK
+
+            x = [10,'hello'] // ERROR
+        ```
+    
+    + 枚举
+
+        枚举类型是ts增加的一种类型，它使用`enum`关键字来进行声明
+
+        ```ts
+            enum EColor {
+                Red, // 0
+                Yellow = 2,
+                Green, // 3
+                Blue = 'Blue',
+            }
+            let c:EColor = EColor.Red;
+        ```
+
+        默认情况下，`ts`是从`0`为元素编号，如`EColor.Red`代表的值就为0,但是也可以为其手动赋值，如`EColor.Blue`，如果手动赋值的值为数值，则接下来的枚举值会以此递增，比如`EColor.Green`的值就为`3`;如果不是数值，那后续的值都必须手动赋值
+
+        通常情况下，我们一般将枚举作为一些结构化常量来使用，这样我们以后有调整，修改这一处地方就好。当然，你也可以使用对象来替代，我们这里并不推荐这样做
+
+    + Any
+
+        `any`类型属于ts的一个顶层类型，代表任意类型，这个类型在旧项目迁移到ts非常方便，但是我们不推荐使用，如果你大量使用`any`，写成`anyTS`,那就失去了使用`TS`的意义。这里不管任何情况下，如果你想使用`any`，请先问一下是否有其他方式来替代它
+
+    + Void
+
+        `void`类型表示没有任何值，当一个函数没有返回值时，它的返回类型就算`void`;
+
+        ```ts
+            function warnUser():void{
+                console.log('This is my warning message');
+            }
+        ```
+
+        如果一个变量是`void`类型，那你只能为它赋`null`或者`undefined`
+
+    + Null 和 Undefined
+
+        这两种类型，见文知意，就是`null`和`undefined`类型
+
+    + Never
+
+        `never`类型表示永远不存在的值的类型，一般来说用在那些会抛出错误的函数里
+
+        ```ts
+            function error(message:string):never{
+                throw new Error(message); 
+            }
+        ```
+
+        通常情况下不会将变量定义为`never`类型，因为除了`never`类型，其他值，包括`any`都不可以赋值给它
+
+    + Unknown
+
+        `unknown`表示未知类型，它可以接受任何值，但在不做约束的情况下，`unknown`类型不能赋值给任何类型
+
+        ```ts
+            let maybe:unknown;
+            const aNumber:number = 123;
+            maybe = aNumber; // OK
+            let aString:string = maybe; // Error
+            if(typeof maybe === 'string'){
+                let aString:string = maybe; // OK
+            }
+        ```
+
 5. 类型的使用方式：
 
     + 类型的使用主要分为两种，先声明后使用，或者直接使用，下面分别介绍这两种
@@ -60,7 +145,7 @@
 
     2. 先声明后使用
 
-        + 先声明后使用，在ts中，主要有以下方式声明类型
+        + 先声明后使用，在ts中，主要有以下方式声明类型，注意，声明类型是不区分大小写的，但是大多数人都遵循首字母大写的规范。这个并没有强制要求，只不过如果使用小写开头，某些情况下可能会遭人耻笑
 
         1. `type`
 
@@ -88,4 +173,30 @@
 
         2. `interface`
 
+            `interface`，官方称它为接口，可以理解为结构化类型，你可以把它简单类比为`javascript`的`Object`的类型，使用上可以这样使用：
+
+                ```ts
+                    export interface IProps {
+                        names:string[];
+                        age:number;
+                    }
+                ```
+            
+            同时，对于结构化类型，是可以被`implements`和`extends`的，这个放在下一期说
+
         3. `class`
+
+            对于class，我们暂时之说抽象类这一种，其他内容过于多，将放在单独一章来说
+
+            ```ts
+                abstract class Animal {
+                    abstract makeSound():void;
+                    move():void{
+                        console.log('roaming the earch...');
+                    }
+                }
+            ```
+
+            `abstract`关键字用来定义抽象类和在抽象类内部定义抽象方法，抽象类中的抽象方法必须在派生类中实现。
+
+
