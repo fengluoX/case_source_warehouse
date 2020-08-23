@@ -52,3 +52,12 @@ enum EColor {
     Blue = 'Blue',
 }
 
+const handleClick:Function =()=>{}
+
+function handleSelect(e:Event):string{
+    return 'Hello Ts'
+}
+
+const handleChecked:(checked:boolean,record:boolean[])=>boolean = (checked,record)=>{
+    return true
+}

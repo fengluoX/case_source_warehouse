@@ -199,4 +199,23 @@
 
             `abstract`关键字用来定义抽象类和在抽象类内部定义抽象方法，抽象类中的抽象方法必须在派生类中实现。
 
+    6. 在函数中使用类型
+
+        + 首先是最简单的方式：`const handleClick:Function =()=>{}`。但是，不推荐，这样就失去了类型的意义。
+
+        + 函数添加类型是为入参和出参添加，我们可以这样:
+
+        ```ts
+            function handleSelect(e:Event):string{
+                return 'Hello Ts'
+            }
+        ```
+
+        + 也可以使用这种方式：
+
+        ```ts
+            const handleChecked:(checked:boolean,record:boolean[])=>boolean = (checked,record)=>{
+                return true
+            }
+        ```
 
