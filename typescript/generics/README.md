@@ -143,7 +143,7 @@
         }
     ```
 
-5. 对泛型进行约束
+6. 对泛型进行约束
 
     + 有时候，我们并不希望定义的泛型可以接受任意类型，希望对它进行限制，我们可以使用`extends`关键字来实现
 
@@ -160,7 +160,7 @@
 
     如上`extends`会限制传入的类型必须是`Lengthwise`的子类型
 
-6. 在泛型中使用类
+7. 在泛型中使用类
 
     1. 我们在`ts`中创建工厂函数时，会用到该类的构造函数来引用该类的类型，例如：
 
@@ -201,7 +201,7 @@
         createInstance(Bee).keeper.hasMask;
     ```
 
-7. 最后，对于泛型，其实是不区分大小写的，但惯例都是使用一个大写字母来表示，一般来说，会取类型的首字母，如React中定义的State和Props，它的定义是这样的:
+8. 最后，对于泛型，其实是不区分大小写的，但惯例都是使用一个大写字母来表示，一般来说，会取类型的首字母，如React中定义的State和Props，它的定义是这样的:
 
 ```ts
     declare function createReactClass<P, S = {}>(spec: ComponentSpec<P, S>): ClassicComponentClass<P>;
