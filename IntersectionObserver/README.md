@@ -14,3 +14,4 @@ Intersection Observer API 提供了一种异步检测目标元素与祖先元素
 # 参考文档
 
 [Intersection Observer API](https://developer.mozilla.org/zh-CN/docs/Web/API/Intersection_Observer_API)
+[IntersectionObserver API 使用教程](https://www.ruanyifeng.com/blog/2016/11/intersectionobserver_api.html)

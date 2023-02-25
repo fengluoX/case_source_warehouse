@@ -1,0 +1,22 @@
+.container {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.pad {
+  height: 1000px;
+}
+
+.target {
+  background: rgb(237, 28, 36);
+  height: 100px;
+  outline: 100px solid rgba(0, 0, 0, 0.2);
+}
+
+.info {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+}

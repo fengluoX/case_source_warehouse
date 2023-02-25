@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./layout";
 import Basic from "./routes/basic";
 import "antd/dist/reset.css";
@@ -8,6 +8,7 @@ function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
+          <Route path="/" element={<Navigate to="/basic" replace />} />
           <Route path="/basic" element={<Basic />} />
         </Routes>
       </Layout>

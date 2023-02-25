@@ -1,13 +1,16 @@
 import React from "react";
-import { Layout, Menu } from "antd";
+import styles from "./index.module.css";
 
 const Basic: React.FC = () => {
-
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      
-      <Layout className="site-layout"></Layout>
-    </Layout>
+    <>
+      <div className={styles.container}>
+        <div className={styles.pad}></div>
+        <div className={styles.target}></div>
+        <div className={styles.pad}></div>
+      </div>
+      <span className={styles.info}>isIntersecting = true</span>
+    </>
   );
 };
 
