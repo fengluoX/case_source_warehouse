@@ -27,7 +27,16 @@ const App: React.FC<{
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider>
+      <Sider
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
         <Menu
           theme="dark"
           defaultSelectedKeys={[items[0]?.key as string]}
@@ -36,7 +45,7 @@ const App: React.FC<{
           items={items}
         />
       </Sider>
-      <Layout className="site-layout">{children}</Layout>
+      <Layout style={{ marginLeft: 200 }}>{children}</Layout>
     </Layout>
   );
 };
